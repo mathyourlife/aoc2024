@@ -2,9 +2,10 @@ package main
 
 import (
 	"bufio"
+	"embed"
 	"fmt"
+	"io/fs"
 	"log"
-	"os"
 	"regexp"
 	"slices"
 	"sort"
@@ -12,32 +13,44 @@ import (
 	"strings"
 )
 
+//go:embed data/*
+var data embed.FS
+
+func DayInput(day int) fs.File {
+	filename := fmt.Sprintf("data/day%02d.txt", day)
+	file, err := data.Open(filename)
+	if err != nil {
+		log.Fatalf("error opening file '%s': %w", filename, err)
+	}
+	return file
+}
+
+func DayScanner(day int) *bufio.Scanner {
+	return bufio.NewScanner(DayInput(day))
+}
+
 func main() {
-	// Day01PartOne()
-	// Day01PartTwo()
-	// Day02PartOne()
-	// Day02PartTwo()
+	Day01PartOne()
+	Day01PartTwo()
+	Day02PartOne()
+	Day02PartTwo()
+	Day03PartOne()
 	Day03PartTwo()
 }
 
 func Day03PartTwo() {
-	f, err := os.OpenFile("day03.txt", os.O_RDONLY, os.ModePerm)
-	if err != nil {
-		log.Fatal(err)
-	}
+	scanner := DayScanner(3)
 	// f := strings.NewReader(`xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))`)
 
 	reOp := regexp.MustCompile(`(mul\((\d{1,3}),(\d{1,3})\)|do\(\)|don't\(\))`)
-	scan := bufio.NewScanner(f)
 	var total int
 	enabled := true
-	for scan.Scan() {
-		line := strings.TrimSpace(scan.Text())
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
 		for _, op := range reOp.FindAllStringSubmatch(line, -1) {
-			fmt.Println(op)
 			switch op[0] {
 			case "do()":
 				enabled = true
@@ -51,24 +64,20 @@ func Day03PartTwo() {
 		}
 	}
 
-	if err := scan.Err(); err != nil {
+	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(total)
 }
 
 func Day03PartOne() {
-	f, err := os.OpenFile("day03.txt", os.O_RDONLY, os.ModePerm)
-	if err != nil {
-		log.Fatal(err)
-	}
+	scanner := DayScanner(3)
 	// f := strings.NewReader(`xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))`)
 
 	reOp := regexp.MustCompile(`mul\((\d{1,3}),(\d{1,3})\)`)
-	scan := bufio.NewScanner(f)
 	var total int
-	for scan.Scan() {
-		line := strings.TrimSpace(scan.Text())
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
@@ -77,7 +86,7 @@ func Day03PartOne() {
 		}
 	}
 
-	if err := scan.Err(); err != nil {
+	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(total)
@@ -92,10 +101,7 @@ func mustInt(str string) int {
 }
 
 func Day02PartTwo() {
-	f, err := os.OpenFile("day02.txt", os.O_RDONLY, os.ModePerm)
-	if err != nil {
-		log.Fatal(err)
-	}
+	scanner := DayScanner(2)
 	// f := strings.NewReader(`7 6 4 2 1
 	// 1 2 7 8 9
 	// 9 7 6 2 1
@@ -104,9 +110,8 @@ func Day02PartTwo() {
 	// 1 3 6 7 9`)
 
 	var rows [][]int
-	scan := bufio.NewScanner(f)
-	for scan.Scan() {
-		line := strings.TrimSpace(scan.Text())
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
@@ -122,7 +127,7 @@ func Day02PartTwo() {
 		rows = append(rows, row)
 	}
 
-	if err := scan.Err(); err != nil {
+	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -196,10 +201,7 @@ func Day02PartTwo() {
 }
 
 func Day02PartOne() {
-	f, err := os.OpenFile("day02.txt", os.O_RDONLY, os.ModePerm)
-	if err != nil {
-		log.Fatal(err)
-	}
+	scanner := DayScanner(2)
 	// f := strings.NewReader(`7 6 4 2 1
 	// 1 2 7 8 9
 	// 9 7 6 2 1
@@ -208,9 +210,8 @@ func Day02PartOne() {
 	// 1 3 6 7 9`)
 
 	var rows [][]int
-	scan := bufio.NewScanner(f)
-	for scan.Scan() {
-		line := strings.TrimSpace(scan.Text())
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
@@ -226,7 +227,7 @@ func Day02PartOne() {
 		rows = append(rows, row)
 	}
 
-	if err := scan.Err(); err != nil {
+	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -291,17 +292,13 @@ func Day02PartOne() {
 }
 
 func Day01PartTwo() {
-	f, err := os.OpenFile("day01.txt", os.O_RDONLY, os.ModePerm)
-	if err != nil {
-		log.Fatal(err)
-	}
+	scanner := DayScanner(1)
 
 	var a []int
 	b := map[int]int{}
 
-	scan := bufio.NewScanner(f)
-	for scan.Scan() {
-		line := strings.TrimSpace(scan.Text())
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
@@ -321,7 +318,7 @@ func Day01PartTwo() {
 		b[bNum]++
 	}
 
-	if err := scan.Err(); err != nil {
+	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -334,16 +331,12 @@ func Day01PartTwo() {
 }
 
 func Day01PartOne() {
-	f, err := os.OpenFile("day01.txt", os.O_RDONLY, os.ModePerm)
-	if err != nil {
-		log.Fatal(err)
-	}
+	scanner := DayScanner(1)
 
 	var a, b []int
 
-	scan := bufio.NewScanner(f)
-	for scan.Scan() {
-		line := strings.TrimSpace(scan.Text())
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
@@ -364,7 +357,7 @@ func Day01PartOne() {
 		b = append(b, bNum)
 	}
 
-	if err := scan.Err(); err != nil {
+	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
