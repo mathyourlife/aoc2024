@@ -20,7 +20,7 @@ func DayInput(day int) fs.File {
 	filename := fmt.Sprintf("data/day%02d.txt", day)
 	file, err := data.Open(filename)
 	if err != nil {
-		log.Fatalf("error opening file '%s': %w", filename, err)
+		log.Fatalf("error opening file '%s': %s", filename, err)
 	}
 	return file
 }
@@ -42,14 +42,15 @@ func Day03PartTwo() {
 	scanner := DayScanner(3)
 	// f := strings.NewReader(`xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))`)
 
+	type operation struct {
+		a, b int
+	}
+
 	reOp := regexp.MustCompile(`(mul\((\d{1,3}),(\d{1,3})\)|do\(\)|don't\(\))`)
-	var total int
 	enabled := true
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
-		}
+	var lines [][]*operation
+	lines = parse(scanner, func(line string) []*operation {
+		var row []*operation
 		for _, op := range reOp.FindAllStringSubmatch(line, -1) {
 			switch op[0] {
 			case "do()":
@@ -58,38 +59,55 @@ func Day03PartTwo() {
 				enabled = false
 			default:
 				if enabled {
-					total += mustInt(op[2]) * mustInt(op[3])
+					row = append(row, &operation{mustInt(op[2]), mustInt(op[3])})
 				}
 			}
 		}
+		return row
+	})
+
+	var total int
+	for _, line := range lines {
+		for _, op := range line {
+			total += op.a * op.b
+		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
 	fmt.Println(total)
+	if total != 63866497 {
+		log.Fatal("total != 63866497")
+	}
 }
 
 func Day03PartOne() {
 	scanner := DayScanner(3)
 	// f := strings.NewReader(`xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))`)
 
+	type operation struct {
+		a, b int
+	}
+
 	reOp := regexp.MustCompile(`mul\((\d{1,3}),(\d{1,3})\)`)
-	var total int
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
-		}
+	var lines [][]*operation
+	lines = parse(scanner, func(line string) []*operation {
+		var row []*operation
 		for _, op := range reOp.FindAllStringSubmatch(line, -1) {
-			total += mustInt(op[1]) * mustInt(op[2])
+			row = append(row, &operation{mustInt(op[1]), mustInt(op[2])})
+		}
+		return row
+	})
+
+	var total int
+	for _, line := range lines {
+		for _, op := range line {
+			total += op.a * op.b
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
 	fmt.Println(total)
+	if total != 171183089 {
+		log.Fatal("total != 171183089")
+	}
 }
 
 func mustInt(str string) int {
@@ -109,50 +127,37 @@ func Day02PartTwo() {
 	// 8 6 4 4 1
 	// 1 3 6 7 9`)
 
-	var rows [][]int
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
-		}
-		parts := strings.Split(line, " ")
+	var lines [][]int
+	lines = parse(scanner, func(line string) []int {
 		var row []int
-		for _, part := range parts {
-			num, err := strconv.Atoi(part)
-			if err != nil {
-				log.Fatal(err)
-			}
-			row = append(row, num)
+		for _, part := range strings.Split(line, " ") {
+			row = append(row, mustInt(part))
 		}
-		rows = append(rows, row)
-	}
+		return row
+	})
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	isAscending := func(num ...int) bool {
-		cmp := slices.Clone(num)
+	isAscending := func(line ...int) bool {
+		cmp := slices.Clone(line)
 		sort.Ints(cmp)
-		if slices.Equal(cmp, num) {
+		if slices.Equal(cmp, line) {
 			return true
 		}
 		return false
 	}
-	isDescending := func(num ...int) bool {
-		cmp := slices.Clone(num)
+	isDescending := func(line ...int) bool {
+		cmp := slices.Clone(line)
 		sort.Sort(sort.Reverse(sort.IntSlice(cmp)))
-		if slices.Equal(cmp, num) {
+		if slices.Equal(cmp, line) {
 			return true
 		}
 		return false
 	}
 
-	isSafe := func(row ...int) bool {
-		if isDescending(row...) {
+	isSafe := func(line ...int) bool {
+		if isDescending(line...) {
 			safe := true
-			for i := 1; i < len(row); i++ {
-				diff := row[i-1] - row[i]
+			for i := 1; i < len(line); i++ {
+				diff := line[i-1] - line[i]
 				switch {
 				case diff == 0:
 					safe = false
@@ -164,10 +169,10 @@ func Day02PartTwo() {
 				return true
 			}
 		}
-		if isAscending(row...) {
+		if isAscending(line...) {
 			safe := true
-			for i := 1; i < len(row); i++ {
-				diff := row[i] - row[i-1]
+			for i := 1; i < len(line); i++ {
+				diff := line[i] - line[i-1]
 				switch {
 				case diff == 0:
 					safe = false
@@ -183,13 +188,13 @@ func Day02PartTwo() {
 	}
 
 	var total int
-	for _, row := range rows {
-		if isSafe(row...) {
+	for _, line := range lines {
+		if isSafe(line...) {
 			total++
 			continue
 		}
-		for i := 0; i < len(row); i++ {
-			copy := slices.Clone(row)
+		for i := 0; i < len(line); i++ {
+			copy := slices.Clone(line)
 			short := append(copy[:i], copy[i+1:]...)
 			if isSafe(short...) {
 				total++
@@ -198,6 +203,9 @@ func Day02PartTwo() {
 		}
 	}
 	fmt.Println(total)
+	if total != 626 {
+		log.Fatal("total != 626")
+	}
 }
 
 func Day02PartOne() {
@@ -209,27 +217,14 @@ func Day02PartOne() {
 	// 8 6 4 4 1
 	// 1 3 6 7 9`)
 
-	var rows [][]int
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
-		}
-		parts := strings.Split(line, " ")
+	var lines [][]int
+	lines = parse(scanner, func(line string) []int {
 		var row []int
-		for _, part := range parts {
-			num, err := strconv.Atoi(part)
-			if err != nil {
-				log.Fatal(err)
-			}
-			row = append(row, num)
+		for _, part := range strings.Split(line, " ") {
+			row = append(row, mustInt(part))
 		}
-		rows = append(rows, row)
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
+		return row
+	})
 
 	isAscending := func(num ...int) bool {
 		cmp := slices.Clone(num)
@@ -248,11 +243,11 @@ func Day02PartOne() {
 		return false
 	}
 
-	isSafe := func(row ...int) bool {
-		if isDescending(row...) {
+	isSafe := func(line ...int) bool {
+		if isDescending(line...) {
 			safe := true
-			for i := 1; i < len(row); i++ {
-				diff := row[i-1] - row[i]
+			for i := 1; i < len(line); i++ {
+				diff := line[i-1] - line[i]
 				switch {
 				case diff == 0:
 					safe = false
@@ -264,10 +259,10 @@ func Day02PartOne() {
 				return true
 			}
 		}
-		if isAscending(row...) {
+		if isAscending(line...) {
 			safe := true
-			for i := 1; i < len(row); i++ {
-				diff := row[i] - row[i-1]
+			for i := 1; i < len(line); i++ {
+				diff := line[i] - line[i-1]
 				switch {
 				case diff == 0:
 					safe = false
@@ -283,43 +278,35 @@ func Day02PartOne() {
 	}
 
 	var total int
-	for _, row := range rows {
-		if isSafe(row...) {
+	for _, line := range lines {
+		if isSafe(line...) {
 			total++
 		}
 	}
 	fmt.Println(total)
+	if total != 585 {
+		log.Fatal("total != 585")
+	}
 }
 
 func Day01PartTwo() {
 	scanner := DayScanner(1)
 
+	var lines [][]int
+	lines = parse(scanner, func(line string) []int {
+		var row []int
+		for _, part := range strings.Split(line, "   ") {
+			row = append(row, mustInt(part))
+		}
+		return row
+	})
+
 	var a []int
 	b := map[int]int{}
 
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
-		}
-		parts := strings.Split(line, "   ")
-		if len(parts) != 2 {
-			log.Fatal("invalid line: ", line)
-		}
-		aNum, err := strconv.Atoi(parts[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-		bNum, err := strconv.Atoi(parts[1])
-		if err != nil {
-			log.Fatal(err)
-		}
-		a = append(a, aNum)
-		b[bNum]++
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+	for _, line := range lines {
+		a = append(a, line[0])
+		b[line[1]]++
 	}
 
 	var total int
@@ -328,37 +315,27 @@ func Day01PartTwo() {
 		total += int(num * b[num])
 	}
 	fmt.Println(total)
+	if total != 26674158 {
+		log.Fatal("total != 26674158")
+	}
 }
 
 func Day01PartOne() {
 	scanner := DayScanner(1)
 
+	var lines [][]int
+	lines = parse(scanner, func(line string) []int {
+		var row []int
+		for _, part := range strings.Split(line, "   ") {
+			row = append(row, mustInt(part))
+		}
+		return row
+	})
+
 	var a, b []int
-
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
-		}
-		parts := strings.Split(line, "   ")
-		if len(parts) != 2 {
-			log.Fatal("invalid line: ", line)
-		}
-
-		aNum, err := strconv.Atoi(parts[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-		bNum, err := strconv.Atoi(parts[1])
-		if err != nil {
-			log.Fatal(err)
-		}
-		a = append(a, aNum)
-		b = append(b, bNum)
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+	for _, line := range lines {
+		a = append(a, line[0])
+		b = append(b, line[1])
 	}
 
 	sort.Ints(a)
@@ -373,4 +350,25 @@ func Day01PartOne() {
 		total += diff
 	}
 	fmt.Println(total)
+	if total != 1830467 {
+		log.Fatal("total != 1830467")
+	}
+}
+
+func parse[T any](scanner *bufio.Scanner, f func(line string) T) []T {
+	var parsedLines []T
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
+		var parsedLine T
+		parsedLine = f(line)
+		parsedLines = append(parsedLines, parsedLine)
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return parsedLines
 }
