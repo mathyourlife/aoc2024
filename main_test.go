@@ -7,7 +7,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestDay02(t *testing.T) {
+func TestDays(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name   string
@@ -16,6 +16,16 @@ func TestDay02(t *testing.T) {
 		want   int
 	}{
 		{
+			name:   "Day 01 Part 1",
+			solver: Day01Part1,
+			input:  ExampleScanner(1),
+			want:   11,
+		}, {
+			name:   "Day 01 Part 2",
+			solver: Day01Part2,
+			input:  ExampleScanner(1),
+			want:   31,
+		}, {
 			name:   "Day 02 Part 1",
 			solver: Day02Part1,
 			input:  ExampleScanner(2),
@@ -25,6 +35,16 @@ func TestDay02(t *testing.T) {
 			solver: Day02Part2,
 			input:  ExampleScanner(2),
 			want:   4,
+		}, {
+			name:   "Day 03 Part 1",
+			solver: Day03Part1,
+			input:  ExampleScanner(3),
+			want:   161,
+		}, {
+			name:   "Day 03 Part 2",
+			solver: Day03Part2,
+			input:  ExampleScanner(3),
+			want:   48,
 		},
 	}
 
