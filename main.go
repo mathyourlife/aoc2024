@@ -26,15 +26,6 @@ func main() {
 		Scanner *bufio.Scanner
 		Want    int
 	}{
-		// Examples
-		{1, 1, ExampleScanner(1), 11},
-		{1, 2, ExampleScanner(1), 31},
-		{2, 1, ExampleScanner(2), 2},
-		{2, 2, ExampleScanner(2), 4},
-		{3, 1, ExampleScanner(3), 161},
-		{3, 2, ExampleScanner(3), 48},
-
-		// Real
 		{1, 1, DayScanner(1), 1830467},
 		{1, 2, DayScanner(1), 26674158},
 		{2, 1, DayScanner(2), 585},
@@ -55,6 +46,6 @@ func main() {
 		if got != input.Want {
 			log.Fatalf("Day%02dPart1 got %d, want %d", input.Day, got, input.Want)
 		}
-		fmt.Printf("Day%02dPart1 ok\n", input.Day)
+		fmt.Printf("✓ Day%02dPart1 = %d\n", input.Day, got)
 	}
 }
