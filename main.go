@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"slices"
 	"sort"
 	"strconv"
@@ -15,7 +16,79 @@ func main() {
 	// Day01PartOne()
 	// Day01PartTwo()
 	// Day02PartOne()
-	Day02PartTwo()
+	// Day02PartTwo()
+	Day03PartTwo()
+}
+
+func Day03PartTwo() {
+	f, err := os.OpenFile("day03.txt", os.O_RDONLY, os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// f := strings.NewReader(`xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))`)
+
+	reOp := regexp.MustCompile(`(mul\((\d{1,3}),(\d{1,3})\)|do\(\)|don't\(\))`)
+	scan := bufio.NewScanner(f)
+	var total int
+	enabled := true
+	for scan.Scan() {
+		line := strings.TrimSpace(scan.Text())
+		if line == "" {
+			continue
+		}
+		for _, op := range reOp.FindAllStringSubmatch(line, -1) {
+			fmt.Println(op)
+			switch op[0] {
+			case "do()":
+				enabled = true
+			case "don't()":
+				enabled = false
+			default:
+				if enabled {
+					total += mustInt(op[2]) * mustInt(op[3])
+				}
+			}
+		}
+	}
+
+	if err := scan.Err(); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(total)
+}
+
+func Day03PartOne() {
+	f, err := os.OpenFile("day03.txt", os.O_RDONLY, os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// f := strings.NewReader(`xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))`)
+
+	reOp := regexp.MustCompile(`mul\((\d{1,3}),(\d{1,3})\)`)
+	scan := bufio.NewScanner(f)
+	var total int
+	for scan.Scan() {
+		line := strings.TrimSpace(scan.Text())
+		if line == "" {
+			continue
+		}
+		for _, op := range reOp.FindAllStringSubmatch(line, -1) {
+			total += mustInt(op[1]) * mustInt(op[2])
+		}
+	}
+
+	if err := scan.Err(); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(total)
+}
+
+func mustInt(str string) int {
+	i, err := strconv.Atoi(str)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return i
 }
 
 func Day02PartTwo() {
