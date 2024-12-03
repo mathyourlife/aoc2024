@@ -30,17 +30,18 @@ func DayScanner(day int) *bufio.Scanner {
 }
 
 func main() {
-	Day01PartOne()
-	Day01PartTwo()
-	Day02PartOne()
-	Day02PartTwo()
-	Day03PartOne()
-	Day03PartTwo()
+	Day01Part1()
+	Day01Part2()
+	Day02Part1()
+	Day02Part2()
+	Day03Part1()
+	Day03Part2()
 }
 
-func Day03PartTwo() {
+func Day03Part2() {
 	scanner := DayScanner(3)
-	// f := strings.NewReader(`xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))`)
+	// 42
+	// scanner := bufio.NewScanner(strings.NewReader(`xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))`))
 
 	type operation struct {
 		a, b int
@@ -73,15 +74,13 @@ func Day03PartTwo() {
 		}
 	}
 
-	fmt.Println(total)
-	if total != 63866497 {
-		log.Fatal("total != 63866497")
-	}
+	check("Day03Part2", total, 63866497)
 }
 
-func Day03PartOne() {
+func Day03Part1() {
 	scanner := DayScanner(3)
-	// f := strings.NewReader(`xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))`)
+	// 161
+	// scanner := bufio.NewScanner(strings.NewReader(`xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))`))
 
 	type operation struct {
 		a, b int
@@ -104,10 +103,7 @@ func Day03PartOne() {
 		}
 	}
 
-	fmt.Println(total)
-	if total != 171183089 {
-		log.Fatal("total != 171183089")
-	}
+	check("Day03Part1", total, 171183089)
 }
 
 func mustInt(str string) int {
@@ -118,14 +114,15 @@ func mustInt(str string) int {
 	return i
 }
 
-func Day02PartTwo() {
+func Day02Part2() {
 	scanner := DayScanner(2)
-	// f := strings.NewReader(`7 6 4 2 1
+	// 626
+	// scanner := bufio.NewScanner(strings.NewReader(`7 6 4 2 1
 	// 1 2 7 8 9
 	// 9 7 6 2 1
 	// 1 3 2 4 5
 	// 8 6 4 4 1
-	// 1 3 6 7 9`)
+	// 1 3 6 7 9`))
 
 	var lines [][]int
 	lines = parse(scanner, func(line string) []int {
@@ -202,20 +199,18 @@ func Day02PartTwo() {
 			}
 		}
 	}
-	fmt.Println(total)
-	if total != 626 {
-		log.Fatal("total != 626")
-	}
+	check("Day02Part2", total, 626)
 }
 
-func Day02PartOne() {
+func Day02Part1() {
 	scanner := DayScanner(2)
-	// f := strings.NewReader(`7 6 4 2 1
+	// 2
+	// scanner := bufio.NewScanner(strings.NewReader(`7 6 4 2 1
 	// 1 2 7 8 9
 	// 9 7 6 2 1
 	// 1 3 2 4 5
 	// 8 6 4 4 1
-	// 1 3 6 7 9`)
+	// 1 3 6 7 9`))
 
 	var lines [][]int
 	lines = parse(scanner, func(line string) []int {
@@ -283,14 +278,18 @@ func Day02PartOne() {
 			total++
 		}
 	}
-	fmt.Println(total)
-	if total != 585 {
-		log.Fatal("total != 585")
-	}
+	check("Day02Part1", total, 585)
 }
 
-func Day01PartTwo() {
+func Day01Part2() {
 	scanner := DayScanner(1)
+	// 31
+	// scanner := bufio.NewScanner(strings.NewReader(`3   4
+	// 4   3
+	// 2   5
+	// 1   3
+	// 3   9
+	// 3   3`))
 
 	var lines [][]int
 	lines = parse(scanner, func(line string) []int {
@@ -314,14 +313,18 @@ func Day01PartTwo() {
 	for _, num := range a {
 		total += int(num * b[num])
 	}
-	fmt.Println(total)
-	if total != 26674158 {
-		log.Fatal("total != 26674158")
-	}
+	check("Day01Part2", total, 26674158)
 }
 
-func Day01PartOne() {
+func Day01Part1() {
 	scanner := DayScanner(1)
+	// 11
+	// scanner := bufio.NewScanner(strings.NewReader(`3   4
+	// 4   3
+	// 2   5
+	// 1   3
+	// 3   9
+	// 3   3`))
 
 	var lines [][]int
 	lines = parse(scanner, func(line string) []int {
@@ -349,10 +352,14 @@ func Day01PartOne() {
 		}
 		total += diff
 	}
-	fmt.Println(total)
-	if total != 1830467 {
-		log.Fatal("total != 1830467")
+	check("Day01Part1", total, 1830467)
+}
+
+func check(name string, got, want int) {
+	if got != want {
+		log.Fatalf("%s got %d, want %d", name, got, want)
 	}
+	fmt.Println(name, "ok")
 }
 
 func parse[T any](scanner *bufio.Scanner, f func(line string) T) []T {
