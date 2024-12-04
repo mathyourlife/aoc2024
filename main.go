@@ -33,8 +33,8 @@ func main() {
 		{2, 2, DayScanner(2), 626},
 		{3, 1, DayScanner(3), 171183089},
 		{3, 2, DayScanner(3), 63866497},
-		{4, 1, DayScanner(4), -1},
-		{4, 2, DayScanner(4), -1},
+		{4, 1, DayScanner(4), 2547},
+		{4, 2, DayScanner(4), 1939},
 	}
 
 	for _, input := range inputs {
