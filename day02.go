@@ -10,8 +10,9 @@ import (
 func Day02Part2(scanner *bufio.Scanner) int {
 	var lines [][]int
 	lines = parse(scanner, func(line string) []int {
-		var row []int
-		for _, part := range strings.Split(line, " ") {
+		parts := strings.Split(line, " ")
+		row := make([]int, 0, len(parts))
+		for _, part := range parts {
 			row = append(row, mustInt(part))
 		}
 		return row
@@ -89,8 +90,9 @@ func Day02Part2(scanner *bufio.Scanner) int {
 func Day02Part1(scanner *bufio.Scanner) int {
 	var lines [][]int
 	lines = parse(scanner, func(line string) []int {
-		var row []int
-		for _, part := range strings.Split(line, " ") {
+		parts := strings.Split(line, " ")
+		row := make([]int, 0, len(parts))
+		for _, part := range parts {
 			row = append(row, mustInt(part))
 		}
 		return row

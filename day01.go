@@ -12,14 +12,15 @@ import (
 func Day01Part2(scanner *bufio.Scanner) int {
 	var lines [][]int
 	lines = parse(scanner, func(line string) []int {
-		var row []int
-		for _, part := range strings.Split(line, "   ") {
+		parts := strings.Split(line, "   ")
+		row := make([]int, 0, len(parts))
+		for _, part := range parts {
 			row = append(row, mustInt(part))
 		}
 		return row
 	})
 
-	var a []int
+	a := make([]int, 0, len(lines))
 	b := map[int]int{}
 
 	for _, line := range lines {
