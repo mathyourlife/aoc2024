@@ -45,6 +45,16 @@ func TestDays(t *testing.T) {
 			solver: Day03Part2,
 			input:  ExampleScanner(3),
 			want:   48,
+		}, {
+			name:   "Day 04 Part 1",
+			solver: Day04Part1,
+			input:  ExampleScanner(4),
+			want:   -1,
+		}, {
+			name:   "Day 04 Part 2",
+			solver: Day04Part2,
+			input:  ExampleScanner(4),
+			want:   -1,
 		},
 	}
 
