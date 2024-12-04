@@ -133,3 +133,15 @@ func BenchmarkDay03Part2(b *testing.B) {
 		Day03Part2(DayScanner(3))
 	}
 }
+
+func BenchmarkDay04Part1(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Day04Part1(DayScanner(4))
+	}
+}
+
+func BenchmarkDay04Part2(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Day04Part2(DayScanner(4))
+	}
+}
