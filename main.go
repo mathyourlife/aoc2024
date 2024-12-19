@@ -19,6 +19,7 @@ func main() {
 		{Day02Part1, Day02Part2},
 		{Day03Part1, Day03Part2},
 		{Day04Part1, Day04Part2},
+		{Day05Part1, Day05Part2},
 	}
 
 	inputs := []struct {
@@ -35,6 +36,8 @@ func main() {
 		{3, 2, DayScanner(3), 63866497},
 		{4, 1, DayScanner(4), 2547},
 		{4, 2, DayScanner(4), 1939},
+		// {5, 1, DayScanner(5), 4766},
+		{5, 2, DayScanner(5), -1},
 	}
 
 	for _, input := range inputs {
